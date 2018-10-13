@@ -5,7 +5,7 @@ import java.util.Base64;
 import java.util.*;
 import com.google.gson.*;
 
-public class TwitterExample {
+public class twitter_example {
     private static final String USER_AGENT = "HackDukeDemo";
     private static final String oath_consumer_key = "bl6cRsiHKkMlrHQHf8Xu6ugfm";
     private static final String oath_consumer_private_key = "Ycq24liikxVVUAoOgihZxLVaLUWEZD9FkU5X2l95XFvBee2Q0V";
@@ -28,7 +28,8 @@ public class TwitterExample {
         conn.setRequestProperty("User-Agent", USER_AGENT);
         conn.setRequestProperty("Authorization", POST_string);
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-
+        
+        // write into the connection
         BufferedWriter httpRequestBodyWriter = new BufferedWriter(new OutputStreamWriter(conn.getOutputStream()));
         httpRequestBodyWriter.write("grant_type=client_credentials");
         httpRequestBodyWriter.close();
@@ -42,14 +43,19 @@ public class TwitterExample {
         httpResponseScanner.close();
     }
 
+    /*
+    Twitter Trends/Place API page: https://developer.twitter.com/en/docs/trends/trends-for-location/api-reference/get-trends-place
+     */
     private static void sendGet() throws IOException {
-        String GET_URL = "https://api.twitter.com/1.1/trends/place.json";
-        GET_URL = GET_URL + "?id=1";
+        String GET_URL = "https://api.twitter.com/1.1/trends/place.json"; // endpoint (resource URL)
+        GET_URL = GET_URL + "?id=1"; // 1 for global trends
+
         URL obj = new URL(GET_URL);
         HttpURLConnection conn = (HttpURLConnection) obj.openConnection();
         conn.setRequestMethod("GET");
         conn.setRequestProperty("Authorization", "Bearer " + bearer);
-        int responseCode = conn.getResponseCode();
+
+        int responseCode = conn.getResponseCode(); // 200 (HTTP_OK) indicates success
         System.out.println("GET response code: " + responseCode);
         if (responseCode == HttpURLConnection.HTTP_OK) { // success
             BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -63,20 +69,18 @@ public class TwitterExample {
             in.close();
 
             // print result
-            System.out.println(response.toString());
+            System.out.println(response.toString()); // JSON response. can copy and paste into a JSON editor
+
             JsonParser parser = new JsonParser();
             JsonElement parsedObject = parser.parse(response.toString().substring(1, response.toString().length() - 1));
+            // substring of response used to get rid of [ ]
             JsonObject jsonObj = parsedObject.getAsJsonObject();
             JsonArray trendsArray = jsonObj.get("trends").getAsJsonArray();
             for (int i = 0; i < trendsArray.size(); i++) {
                 JsonElement tempObj = trendsArray.get(i);
                 String trend = tempObj.getAsJsonObject().get("name").toString();
                 System.out.println(trend);
-
             }
-            String test = jsonObj.get("trends").getAsJsonArray().get(0).toString();
-
-            //System.out.println(test);
         }
     }
 
